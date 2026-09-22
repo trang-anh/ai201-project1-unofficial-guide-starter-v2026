@@ -25,6 +25,8 @@ contains the answer.
 **Why this target:**
 <!-- e.g. "One of my questions is about a topic only two documents mention, so
      I expect that one to be hard." -->
+I expect the retrieval to be accurate and relevant most of the time hence 4 out of 5. Allowing for one retrieval miss is reasonable given some of my questions are quite specific and only briefly mentioned in long documents.
+
 
 ---
 
@@ -35,6 +37,7 @@ Every answer the system produces names at least one source document.
 **Why this target:**
 <!-- Why all five and not four? What about your setup makes that achievable —
      or what would have to go wrong for it not to be? -->
+LLMs are notorious for hallucinating or making up answers; hence, for all five answers, we need to be able to check it ourselves where the system retrieves its information from. Anything lower than all five would introduce a tolerance for hallucinations.
 
 ---
 
@@ -52,10 +55,13 @@ in at least 4 of 5 tries.
 **Why this target:**
 <!-- What did your distances look like when you set the cutoff in Milestone 4?
      Was there a clean gap, or did the two groups overlap? -->
+At least 4 of 5 tries is a reasonable metric since even though we do care about the accuracy of the information being retrieved, we also care about whether or not there is actually an answer that can be retrieved. If there is no criterion to confirm that the answers we are getting are within the corpus, we cannot confidently trust the answer the system gives for questions that are actually within the corpus. Anything lower than 4 out of 5 would introduce a higher tolerance for hallucinations.
 
 ---
 
 ## 4. Something about your chunks
+
+At least 4 out of 5 sampled chunks should contain enough context to be understood on their own without requiring the previous or next chunk.
 
 <!-- YOU WRITE THIS ONE.
 
@@ -72,12 +78,14 @@ in at least 4 of 5 tries.
 
 
 **Why this target:**
-
+Since my corpus contains document that are long sentences, setting a fixed chunk size criterion would be unproductive. Long sentences should not be cut off in the middle and completely contain the full idea without being irrelevant. 
 
 
 ---
 
 ## 5. Your choice
+
+At least 4 out of 5 paraphrased question pairs should retrieve the same key source material.
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -90,7 +98,7 @@ in at least 4 of 5 tries.
 
 
 **Why this target:**
-
+Since the same questions can have different wordings, the system should still retrieve the same relevant information that answers the question regardless. I picked 4 out of 5 because I expect the system to be able to handle most variations of the wordings, but I don't expect perfect consistency when some questions can use hugely different vocabulary. A lower target might make the criterion too easy to pass, whike a higher one would be unrealistic for a small system.
 
 
 ---
