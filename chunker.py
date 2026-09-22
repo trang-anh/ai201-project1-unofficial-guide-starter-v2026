@@ -26,6 +26,7 @@ from dataclasses import dataclass
 
 import config
 from ingest import Document
+import re # regex is used in chunking
 
 
 @dataclass
@@ -97,7 +98,49 @@ def split_documents(documents: list[Document]) -> list[Chunk]:
       - Would splitting on paragraph breaks keep more thoughts intact than
         splitting on a character count?
     """
-    return fallback_split(documents)
+    chunks: list[Chunk] = []
+
+    for doc in documents:
+        text = doc.text.strip()
+
+        # find top-level document heading if there is one
+        title_match = re.match(r"^(#\s+.+)$", text, flags=re.MULTILINE)
+        title = title_match.group(1).strip() if title_match else ""
+
+        # remove top-level heading (#) from body before splitting
+        body = text
+        if title_match:
+            body = text[title_match.end():].strip()
+
+        # split only before ## headings
+        sections = re.split(r"(?=^##\s+)", body, flags=re.MULTILINE)
+
+        index = 0
+
+        for section in sections:
+            section = section.strip()
+
+            if not section:
+                continue
+
+            # if this is just introductory text before the first ## heading,
+            # don't make it its own weak chunk
+            if not section.startswith("##"):
+                continue
+
+            chunk_text = f"{title}\n\n{section}" if title else section
+
+            chunks.append(
+                Chunk(
+                    text=chunk_text,
+                    source=doc.source,
+                    index=index,
+                    produced_by="chunker.py::split_documents",
+                )
+            )
+            index += 1
+
+    return chunks
 
 
 def describe(chunks: list[Chunk]) -> str:
