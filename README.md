@@ -1,6 +1,6 @@
 # The Unofficial Guide
 
-<!-- Replace this line with your name and which corpus you picked. -->
+Anh Nguyen - `city_guides`
 
 > **This file is your submission.** Fill it in as you go — most sections get
 > written during the milestone that produces them, not at the end.
@@ -29,8 +29,8 @@
 
 ## Chunking Strategy
 
-**Chunk size:**
-**Overlap:**
+**Chunk size:** Variable — one level-2 (##) section per chunk, with the document's level-1 (#) heading included as context.
+**Overlap:** None
 
 <!-- What about YOUR documents made you pick these numbers? Short posts and
      long sectioned guides don't want the same chunking, and "800 seemed
@@ -41,6 +41,23 @@
      more than pretending you got it right first time.
 
      Milestone 3. -->
+
+REASONING: 
+My city_guides corpus contains relatively long documents (~2,068 characters each), 
+but the documents are already organized into meaningful sections using headings. 
+Because of that, I decided that one level-2 (##) section should be one chunk instead 
+of using a fixed character limit.
+
+I also keep the level-1 (#) document heading in each chunk because some section 
+headings, such as ## Straightforward, do not make sense on their own without 
+the broader document topic.
+
+I originally used the fixed 800-character chunker, but when I inspected the output, 
+some chunks started or ended in the middle of sentences and combined multiple 
+unrelated sections. Splitting by existing section boundaries keeps each chunk focused 
+on one topic and avoids cutting thoughts in half. For the same reason, I do not use 
+overlap, since the chunk boundaries are no longer arbitrary.
+
 
 ## Sample Chunks
 
@@ -53,48 +70,83 @@
 
      Milestone 3. -->
 
-**Chunk 1** — source: thread_bike_commute.txt#0 `` — produced by: chunker.py::fallback_split ``
+**Chunk 1** — source: guide_accessibility.md#0 `` — produced by: chunker.py::split_documents ``
 
 ```
 ======================================================================
-Chunk 1  |  source: thread_bike_commute.txt#0  |  produced by: chunker.py::fallback_split
+Chunk 1  |  source: guide_accessibility.md#0  |  produced by: chunker.py::split_documents
 ======================================================================
-THREAD: Is a bike worth it for a 20 minute walk commute?
+# Getting around the region with limited mobility
 
---- reply 1 (14 votes) ---
-Yeah. Cuts an 18 minute walk to about 6. The thing nobody mentions is storage — covered bike parking exists at three buildings and is full by 9am at all three.
+## Straightforward
 
---- reply 2 (9 votes) ---
-Counterpoint, I sold mine. Between November and March the paths are either icy or salted and salt destroys a drivetrain in one season.
+**Thornby Wells** is the easiest town in the region. It is flat, compact, and
+everything is within three minutes of everything else. Parking is free for two
+hours anywhere in town and the station is central. The pump room and gardens
+are level throughout.
 
---- reply 3 (22 votes) ---
-Both true. I keep a cheap bike for September to November and walk the rest of the year. Total cost was about $120 for the bike and I don't care what happens to it.
+**Marchwood** has a modern tram network with level boarding on all four lines,
+running every 8 minutes on weekdays. The city museum and covered market are both
+step-free. The distances between districts are the main consideration.
 
---- reply 4 (5 votes) ---
-If you do get one, the campus does free registration and it's the only reason I got mine back after it was taken.
-
-For each one, ask: could someone answer a question using only this,
-without reading what came before or after?
+**Brightwater** is level along the river and through the centre. The mill museum
+is step-free. The station is a 15-minute walk from campus on flat ground, or the
+shuttle meets the four busiest arrivals.
 ```
 
-**Chunk 2** — source: `` — produced by: ``
+**Chunk 2** — source: guide_corry_vale.md#5 `` — produced by: chunker.py::split_documents ``
 
 ```
+======================================================================
+Chunk 2  |  source: guide_corry_vale.md#5  |  produced by: chunker.py::split_documents
+======================================================================
+# Corry Vale
+
+## When to go
+
+May to September. Outside those months the pub in the third village closes, the farm shop reduces its hours, and several footpaths become genuinely boggy rather than merely wet. The road is not gritted above the second village and is impassable in snow.
 ```
 
-**Chunk 3** — source: `` — produced by: ``
+**Chunk 3** — source: guide_givens_mill.md#2 `` — produced by: chunker.py::split_documents ``
 
 ```
+======================================================================
+Chunk 3  |  source: guide_givens_mill.md#2  |  produced by: chunker.py::split_documents
+======================================================================
+# Givens Mill
+
+## Eat and drink
+
+A tearoom attached to the mill, open 10 to 4 daily except Tuesdays, which sells bread made from the flour ground twenty metres away and is the reason most people come. One pub, food served lunchtimes and Thursday to Saturday evenings.
 ```
 
-**Chunk 4** — source: `` — produced by: ``
+**Chunk 4** — source: guide_kestrelford.md#4 `` — produced by: chunker.py::split_documents ``
 
 ```
+======================================================================
+Chunk 4  |  source: guide_kestrelford.md#4  |  produced by: chunker.py::split_documents
+======================================================================
+# Kestrelford
+
+## Where to stay
+
+Two inns on the square and a handful of rooms above the pubs. Booking ahead matters between May and September and not at all otherwise. There is no accommodation of any kind within four miles of the town in either direction.
 ```
 
-**Chunk 5** — source: `` — produced by: ``
+**Chunk 5** — source: guide_pellew_sands.md#6 `` — produced by: chunker.py::split_documents ``
 
 ```
+======================================================================
+Chunk 5  |  source: guide_pellew_sands.md#6  |  produced by: chunker.py::split_documents
+======================================================================
+# Pellew Sands
+
+## Practical notes
+
+Cash is still useful at the market and in smaller places, though cards are
+accepted almost everywhere now. Mobile coverage is good in the centre and
+patchy on the outskirts. The nearest full hospital is in Brightwater; there is
+a minor injuries unit locally with limited hours.
 ```
 
 ## Sample Answer
