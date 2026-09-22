@@ -30,6 +30,7 @@ Anh Nguyen - `city_guides`
 ## Chunking Strategy
 
 **Chunk size:** Variable — one level-2 (##) section per chunk, with the document's level-1 (#) heading included as context.
+
 **Overlap:** None
 
 <!-- What about YOUR documents made you pick these numbers? Short posts and
@@ -42,7 +43,8 @@ Anh Nguyen - `city_guides`
 
      Milestone 3. -->
 
-REASONING: 
+**Reasoning**: 
+
 My city_guides corpus contains relatively long documents (~2,068 characters each), 
 but the documents are already organized into meaningful sections using headings. 
 Because of that, I decided that one level-2 (##) section should be one chunk instead 
@@ -156,12 +158,29 @@ a minor injuries unit locally with limited hours.
 
 **Question:**
 
+What is a good place to visit in Corry Vale?
+
 **Answer:**
 
 ```
+  (best distance 0.262, cutoff 0.6)
+
+According to the documents, the valley itself is the main attraction, and the 12th-century chapel in the second village is also something to see (*guide_corry_vale.md*). Additionally, the Corry Vale circuit is a good walk that takes in three of the four villages (*guide_walking.md* and *guide_corry_vale.md*).
+
+Sources retrieved: guide_corry_vale.md, guide_walking.md
+
+1 model calls this session, 616 tokens (536 in, 80 out)
 ```
 
-**My relevance cutoff:**
+**My relevance cutoff:** 0.45
+
+I chose a cutoff of 0.45 because there was a clear gap
+between the in-corpus and out-of-scope questions. 
+The highest distance for an in-corpus question was 0.3752, 
+while the lowest distance for an out-of-scope question was 0.8350. 
+Since my corpus mostly contains specific factual information, 
+I wanted a relatively strict cutoff, and 0.45 leaves some room above 
+the in-corpus results without getting close to the out-of-scope range.
 
 <!-- The number you set in config.py, and how you got there.
 
@@ -174,7 +193,16 @@ a minor injuries unit locally with limited hours.
 
 | Question | In corpus? | Best distance |
 |---|---|---|
-|  |  |  |
+| Is Brightwater busy in October? | Yes | 0.2983 |
+| What are the operation hours of Kestrelford's pub? | Yes | 0.3509 |
+| What is a good place to visit in Corry Vale? | Yes | 0.2624 |
+| What transportation option is recommended for getting around Marchwood? | Yes | 0.3638 |
+| In what area is cash still useful? | Yes | 0.3752 |
+| What is the capital of Mongolia? | No | 0.8463 |
+| How do I change the oil in a diesel engine? | No | 0.8881 |
+| Who won the 1994 World Cup? | No | 0.9968 |
+| What is the recommended dosage of ibuprofen for a headache?| No | 0.8350 |
+| How do I write a for loop in Rust? | No | 0.8365 |
 
 ## How I Used AI
 
@@ -182,7 +210,7 @@ a minor injuries unit locally with limited hours.
      what you changed about it.
 
      "I asked Claude to write the chunking function from my notes. It ignored
-     the overlap, so I added that myself" is the level of detail we're after.
+     the overlap, so I added | What are the operation hours of Kestrelford's pub? | Yes |  |that myself" is the level of detail we're after.
      "I used AI to help me code" is not.
 
      Milestone 5. -->
