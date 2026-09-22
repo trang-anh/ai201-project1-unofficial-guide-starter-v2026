@@ -26,6 +26,10 @@ Anh Nguyen - `city_guides`
      this repo.
 
      Milestone 5. -->
+I picked `city_guides` corpus which contains specific documents about 9 cities and some 
+generalized documents (accessibility, eating, walking, regional transportation, season to visit) about the regions which contains the 9 cities/areas. This system answers 
+factual travel questions about the nine cities and the surrounding region using 
+information from the city-specific and regional guides.
 
 ## Chunking Strategy
 
@@ -217,7 +221,15 @@ the in-corpus results without getting close to the out-of-scope range.
 
 **1.**
 
+I asked Claude to write my chunking function based on the information i gather of the corpus (long documents, sectioned by headings). 
+
+The first version of the chunking fucntion produce mostly strong chunks but there was one where it was a top level title and introduction of the document by itself. This is because the function was treating all heading levels equally. 
+
+Hence, after checking the chunk outputs, I asked Claude to revise the strategy so that the chunks were spls while also keeping the level 1 heading as context. 
+
 **2.**
+
+I gave Claude the best retrieval distances for my five in-corpus and five out-of-scope questions and asked where it would place the relevance cutoff. It pointed out the large gap between the highest in-corpus distance (`0.3752`) and the lowest out-of-scope distance (`0.8350`), which helped me choose and justify a cutoff of `0.45`.
 
 <!-- ── Stretch features ─────────────────────────────────────────────────────
      Doing one? Say so here BEFORE you start. A feature this README never
