@@ -240,9 +240,7 @@ I gave Claude the best retrieval distances for my five in-corpus and five out-of
 
 # Unit 2
 
-<!-- These sections get ADDED to what's already above. Don't delete or rewrite
-     unit 1 — the point is that someone can see what you said before you knew
-     how it went. -->
+<!-- These sections get ADDED to what's already above. Don't delete or rewrite unit 1 — the point is that someone can see what you said before you knew how it went. -->
 
 ## Run Log — Before
 
@@ -261,8 +259,8 @@ I gave Claude the best retrieval distances for my five in-corpus and five out-of
 | 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
 | 2. Every answer names a source | 5 of 5 |  |  |  |  |
 | 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 4. Sampled chunks should contain enough context | 4 of 5 | | | | |
+| 5. Paraphrased question pairs should retrieve the same key source material | 4 of 5 | | | | |
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
