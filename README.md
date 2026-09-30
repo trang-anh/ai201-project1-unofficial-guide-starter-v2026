@@ -612,10 +612,20 @@ Even though all of the pairs passed, I noticed that paraphrasing could still cha
 
 **What I changed:**
 
+I changed the retrieval stage from semantic search only to hybrid search by
+combining Chroma's semantic ranking with BM25 keyword ranking. I used the hybrid
+score to rerank the retrieved chunks while keeping the original cosine distance
+for the relevance gate.
+
 **Why I picked it:**
 
 <!-- Connect it to a specific diagnosis above in one sentence. If you can't,
      you picked a fix because it sounded impressive. -->
+I picked hybrid search because my paraphrase testing showed that changing the
+wording of a question could cause the correct chunk to be ranked much lower.
+For example, for the paraphrased Corry Vale question, the relevant `What to see`
+chunk was still retrieved, but it dropped to rank 5. I wanted to see whether
+adding keyword matching would make the retrieval ranking more stable.
 
 ### Run Log — After
 
@@ -624,11 +634,11 @@ Even though all of the pairs passed, I noticed that paraphrasing could still cha
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Sampled chunks contain enough context on their own | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 5. Paraphrased question pairs retrieve the same key source material | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
 
 **Did it help?**
 
@@ -638,6 +648,9 @@ Even though all of the pairs passed, I noticed that paraphrasing could still cha
      tell.
 
      Milestone 4. -->
+Yes, but not for every question in the same way. The clearest improvement was with the paraphrased Corry Vale question. Before hybrid search, the relevant What to see chunk was ranked 5th, but after adding BM25 it moved up to 2nd. All five paraphrased question pairs still retrieved the key source material, and the relevance gate still rejected all five out-of-scope questions.
+
+At the same time, hybrid search did not make every result better. For the Marchwood paraphrase, the exact Getting around chunk no longer appeared in the top five, even though another retrieved chunk still contained the tram information needed to answer the question. So overall, I would say the change helped with the ranking issue I was trying to improve, but the effect was not consistent across every query.
 
 ## What's Still Broken
 
