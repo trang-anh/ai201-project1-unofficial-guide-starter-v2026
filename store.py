@@ -20,6 +20,9 @@ rest of the project if they were wrong:
 import os
 import shutil
 from dataclasses import dataclass
+import re
+
+from rank_bm25 import BM25Okapi
 
 # Must be set BEFORE chromadb is imported. Without it, some Chroma versions
 # print "Failed to send telemetry event ..." on every single call — which looks
@@ -177,6 +180,11 @@ def build_index(
 
     return len(chunks)
 
+_WORD_RE = re.compile(r"[a-z0-9]+")
+
+
+def _tokenize(text: str) -> list[str]:
+    return _WORD_RE.findall(text.lower())
 
 def search(
     question: str,
@@ -188,6 +196,16 @@ def search(
     Retrieve the chunks closest in meaning to a question.
 
     Returns them nearest-first, each with its distance.
+
+    EDIT Milestone 4
+    Hybrid retrieval using semantic search + BM25 keyword search.
+
+    Chroma provides the semantic ranking and cosine distances.
+    BM25 provides a keyword-based ranking.
+
+    The two rankings are combined using reciprocal-rank fusion.
+    Result.distance remains the original Chroma cosine distance so the
+    relevance gate continues to use the distance it was calibrated for.
     """
     top_k = top_k or config.TOP_K
     name = config.collection_name(corpus, variant)
@@ -199,16 +217,25 @@ def search(
             f"No index called '{name}'. Run `python app.py index` first."
         ) from exc
 
+    count = collection.count()
+
+    # Retrieve all chunks semantically.
+    # This is reasonable for this project's small corpus and gives every
+    # chunk both a semantic rank and an original cosine distance.
     raw = collection.query(
         query_embeddings=embed([question]),
-        n_results=min(top_k, collection.count()),
+        n_results=count,
     )
 
-    results: list[Result] = []
-    for text, meta, distance in zip(
-        raw["documents"][0], raw["metadatas"][0], raw["distances"][0]
-    ):
-        results.append(
+    documents = raw["documents"][0]
+    metadatas = raw["metadatas"][0]
+    distances = raw["distances"][0]
+
+    # Build Result objects in semantic-rank order.
+    semantic_results: list[Result] = []
+
+    for text, meta, distance in zip(documents, metadatas, distances):
+        semantic_results.append(
             Result(
                 text=text,
                 source=str(meta.get("source", "unknown")),
@@ -217,7 +244,45 @@ def search(
                 produced_by=str(meta.get("produced_by", "unknown")),
             )
         )
-    return results
+    
+    # Keyword ranking over the same chunks.
+    tokenized_documents = [_tokenize(result.text) for result in semantic_results]
+    bm25 = BM25Okapi(tokenized_documents)
+    bm25_scores = bm25.get_scores(_tokenize(question))
+
+    # Highest BM25 score = best keyword rank.
+    bm25_order = sorted(
+        range(len(semantic_results)),
+        key=lambda i: bm25_scores[i],
+        reverse=True,
+    )
+
+    # Map each chunk to its rank in each retrieval method.
+    semantic_rank = {
+        result.label: rank
+        for rank, result in enumerate(semantic_results, start=1)
+    }
+
+    bm25_rank = {
+        semantic_results[i].label: rank
+        for rank, i in enumerate(bm25_order, start=1)
+    }
+
+    # Combine the two rankings.
+    # Equal weighting: semantic meaning and keyword matching both contribute.
+    def hybrid_score(result: Result) -> float:
+        semantic_score = 1.0 / semantic_rank[result.label]
+        keyword_score = 1.0 / bm25_rank[result.label]
+
+        return 0.5 * semantic_score + 0.5 * keyword_score
+
+    hybrid_results = sorted(
+        semantic_results,
+        key=hybrid_score,
+        reverse=True,
+    )
+
+    return hybrid_results[:top_k]
 
 
 def index_exists(corpus: str | None = None, variant: str = "default") -> bool:
