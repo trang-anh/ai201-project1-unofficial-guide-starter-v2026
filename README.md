@@ -661,6 +661,18 @@ At the same time, hybrid search did not make every result better. For the Marchw
      not.
 
      Milestone 5. -->
+I did not miss any of my five acceptance criteria after the change, but the
+retrieval is still not perfectly consistent. Hybrid search improved the Corry
+Vale paraphrase by moving the relevant `What to see` chunk from rank 5 to rank
+2, but it did not improve every query. For the Marchwood paraphrase, the exact
+`Getting around` chunk dropped out of the top five, even though another
+retrieved chunk still contained the tram information needed to answer the
+question.
+
+If I continued working on this, I would experiment with different weights
+between semantic and BM25 ranking instead of using an equal combination. I
+stopped here because the system still met all five criteria, and this milestone
+asked for one measured improvement rather than multiple changes at once.
 
 ## What I'd Do Differently
 
@@ -668,3 +680,24 @@ At the same time, hybrid search did not make every result better. For the Marchw
      differently, and why?
 
      Milestone 5. -->
+Knowing what I know now, I would make Criterion 5 stricter and more specific.
+Instead of only checking whether paraphrased questions retrieve the same key
+source material, I would also care about where that material appears in the
+ranking. My current criterion can still pass even if the most useful chunk drops
+from near the top to rank 5, which I learned can matter a lot for how reliable
+retrieval feels.
+
+I would probably rewrite it to require the key answer-bearing chunk to appear
+within the top 3 results for at least 4 out of 5 paraphrased question pairs.
+That would better measure both consistency and retrieval quality, rather than
+only checking whether the correct material appears somewhere in the top five.
+
+## How I Used AI
+
+**1.**
+
+I asked Claude to help me understand why one of my `scorer.py` judgments was failing even though the generated answer looked correct. It helped me separate a scorer failure from a RAG failure and realize that my deterministic judge was too sensitive to how `expects` was worded. I used that to interpret the run log correctly instead of treating every `fail` as a retrieval or generation failure.
+
+**2.**
+
+I asked Claude how to add hybrid search to my existing `store.py` without changing the rest of the pipeline. It suggested combining Chroma's semantic ranking with BM25 keyword ranking while keeping the original cosine distance for the relevance gate. After implementing it, I compared the retrieval results before and after and found that the Corry Vale `What to see` chunk moved from rank 5 to rank 2 for the paraphrased question, although the improvement was not consistent for every query.
