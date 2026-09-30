@@ -256,11 +256,308 @@ I gave Claude the best retrieval distances for my five in-corpus and five out-of
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
-| 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
-| 2. Every answer names a source | 5 of 5 |  |  |  |  |
-| 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. Sampled chunks should contain enough context | 4 of 5 | | | | |
-| 5. Paraphrased question pairs should retrieve the same key source material | 4 of 5 | | | | |
+| 1. Retrieved chunk contains the answer | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 2. Every answer names a source | 5 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 3. Gate stops out-of-corpus questions | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+| 4. Sampled chunks should contain enough context | 4 of 5 | 5/5 | 5/5 | 5/5 | MET|
+| 5. Paraphrased question pairs should retrieve the same key source material | 4 of 5 | 5/5 | 5/5 | 5/5 | MET |
+
+### Criterion 1 (Retrieved chunk contains the answer), Criterion 4 (Sampled chunks should contain enough context) Evidence 
+**Function**: `python app.py chunks`
+
+**Output**:
+```
+python app.py chunks
+84 chunks total. Showing 5, spread across the corpus.
+
+Paste these into your README under Sample Chunks. The rubric asks
+for the source file and the function that produced them — both are
+printed for you below.
+
+======================================================================
+Chunk 1  |  source: guide_accessibility.md#0  |  produced by: chunker.py::split_documents
+======================================================================
+# Getting around the region with limited mobility
+
+## Straightforward
+
+**Thornby Wells** is the easiest town in the region. It is flat, compact, and everything is within three minutes of everything else. Parking is free for two hours anywhere in town and the station is central. The pump room and gardens are level throughout.
+
+**Marchwood** has a modern tram network with level boarding on all four lines, running every 8 minutes on weekdays. The city museum and covered market are both step-free. The distances between districts are the main consideration.
+
+**Brightwater** is level along the river and through the centre. The mill museum is step-free. The station is a 15-minute walk from campus on flat ground, or the shuttle meets the four busiest arrivals.
+
+======================================================================
+Chunk 2  |  source: guide_corry_vale.md#5  |  produced by: chunker.py::split_documents
+======================================================================
+# Corry Vale
+
+## When to go
+
+May to September. Outside those months the pub in the third village closes, the farm shop reduces its hours, and several footpaths become genuinely boggy rather than merely wet. The road is not gritted above the second village and is impassable in snow.
+
+======================================================================
+Chunk 3  |  source: guide_givens_mill.md#2  |  produced by: chunker.py::split_documents
+======================================================================
+# Givens Mill
+
+## Eat and drink
+
+A tearoom attached to the mill, open 10 to 4 daily except Tuesdays, which sells bread made from the flour ground twenty metres away and is the reason most people come. One pub, food served lunchtimes and Thursday to Saturday evenings.
+
+======================================================================
+Chunk 4  |  source: guide_kestrelford.md#4  |  produced by: chunker.py::split_documents
+======================================================================
+# Kestrelford
+
+## Where to stay
+
+Two inns on the square and a handful of rooms above the pubs. Booking ahead matters between May and September and not at all otherwise. There is no accommodation of any kind within four miles of the town in either direction.
+
+======================================================================
+Chunk 5  |  source: guide_pellew_sands.md#6  |  produced by: chunker.py::split_documents
+======================================================================
+# Pellew Sands
+
+## Practical notes
+
+Cash is still useful at the market and in smaller places, though cards are accepted almost everywhere now. Mobile coverage is good in the centre and patchy on the outskirts. The nearest full hospital is in Brightwater; there is a minor injuries unit locally with limited hours.
+
+For each one, ask: could someone answer a question using only this,
+without reading what came before or after?
+```
+
+### Criterion 2 Evidence:
+
+**Function**: `python run_eval.py --label before`
+
+**From** `results/run_2026-09-23_1926_before.md`:
+
+```
+Question: `What are the operation hours of Kestrelford's pub?`
+
+Kestrelford's pubs serve food between 12 and 2 and again between 6 and 8:30
+(*guide_kestrelford.md* and *guide_eating.md*).
+```
+### Criterion 3 Evidence (Gate stops out-of-corpus questions)
+
+**Function**: `python run_eval.py --label before`
+
+**From** `results/run_2026-09-23_1926_before.md`:
+```
+## The relevance gate on out-of-corpus questions
+
+Produced by `run_eval.py::check_out_of_scope`, cutoff 0.45. Refused 5 of 5.
+
+Retrieval is deterministic and the gate is a comparison against a
+fixed number, so these do not vary between runs — one pass over the
+list is the whole measurement.
+
+| Out-of-scope question | Best distance | Gate |
+|---|---|---|
+| What is the capital of Mongolia? | 0.846 | refused |
+| How do I change the oil in a diesel engine? | 0.888 | refused |
+| Who won the 1994 World Cup? | 0.997 | refused |
+| What is the recommended dosage of ibuprofen for a headache? | 0.835 | refused |
+| How do I write a for loop in Rust? | 0.836 | refused |
+```
+
+### Criterion 5 Evidence (Paraphrased question pairs should retrieve the same key source material)
+
+#### Q1: 
+
+Original: *Is Brightwater busy in October?*
+
+Paraphrase: *Is October a busy time to visit Brightwater?*
+
+**Function**: `python app.py retrieve "Is Brightwater busy in October?"`
+
+`python app.py retrieve "Is October a busy time to visit Brightwater?"`
+
+**Output**:
+```
+Question: Is Brightwater busy in October?
+
+#   distance   source                           preview
+----------------------------------------------------------------------------------------------------
+1   0.2983     guide_seasons.md                 # When to visit the region  ## Autumn, September to ...
+2   0.3414     guide_brightwater.md             # Brightwater  ## When to go  May and June are the b...
+3   0.3869     guide_seasons.md                 # When to visit the region  ## Winter, December to F...
+4   0.3888     guide_seasons.md                 # When to visit the region  ## Spring, March to May ...
+5   0.3893     guide_regional_transport.md      # Getting around the region  ## The railway  The lin...
+
+Gate: best distance 0.298 is under the 0.45 cutoff
+```
+
+```
+Question: Is October a busy time to visit Brightwater?
+
+#   distance   source                           preview
+----------------------------------------------------------------------------------------------------
+1   0.2800     guide_seasons.md                 # When to visit the region  ## Autumn, September to ...
+2   0.3310     guide_brightwater.md             # Brightwater  ## When to go  May and June are the b...
+3   0.3833     guide_seasons.md                 # When to visit the region  ## Spring, March to May ...
+4   0.3983     guide_seasons.md                 # When to visit the region  ## Winter, December to F...
+5   0.4147     guide_regional_transport.md      # Getting around the region  ## The railway  The lin...
+
+Gate: best distance 0.280 is under the 0.45 cutoff
+```
+
+#### Q2: 
+
+Original: *What are the operation hours of Kestrelford's pub?*
+
+Paraphrase: *When does the pub in Kestrelford serve food?*
+
+**Function**: `python app.py retrieve "What are the operation hours of Kestrelford's pub?"`
+
+`python app.py retrieve "When does the pub in Kestrelford serve food?"`
+
+**Output**:
+```
+Question: What are the operation hours of Kestrelford's pub?
+
+#   distance   source                           preview
+----------------------------------------------------------------------------------------------------
+1   0.3509     guide_kestrelford.md             # Kestrelford  ## Eat and drink  Four pubs, two café...
+2   0.3906     guide_kestrelford.md             # Kestrelford  ## Where to stay  Two inns on the squ...
+3   0.4558     guide_eating.md                  # Eating across the region  ## Opening hours  This c...
+4   0.4732     guide_kestrelford.md             # Kestrelford  ## What to see  The market square on ...
+5   0.4860     guide_regional_transport.md      # Getting around the region  ## Buses  Three operato...
+
+Gate: best distance 0.351 is under the 0.45 cutoff
+```
+
+```
+Question: When does the pub in Kestrelford serve food?
+
+#   distance   source                           preview
+----------------------------------------------------------------------------------------------------
+1   0.2124     guide_kestrelford.md             # Kestrelford  ## Eat and drink  Four pubs, two café...
+2   0.2941     guide_eating.md                  # Eating across the region  ## Opening hours  This c...
+3   0.3962     guide_kestrelford.md             # Kestrelford  ## Where to stay  Two inns on the squ...
+4   0.4388     guide_givens_mill.md             # Givens Mill  ## Eat and drink  A tearoom attached ...
+5   0.4399     guide_corry_vale.md              # Corry Vale  ## Eat and drink  One pub in the large...
+
+Gate: best distance 0.212 is under the 0.45 cutoff
+```
+
+#### Q3: 
+
+Original: *What is a good place to visit in Corry Vale?*
+
+Paraphrase: *What is worth seeing in Corry Vale?*
+
+**Function**: `python app.py retrieve "What is a good place to visit in Corry Vale?"`
+
+`python app.py retrieve "What is worth seeing in Corry Vale?"`
+
+**Output**:
+```
+Question: What is a good place to visit in Corry Vale?
+
+#   distance   source                           preview
+----------------------------------------------------------------------------------------------------
+1   0.2624     guide_corry_vale.md              # Corry Vale  ## Where to stay  Perhaps thirty beds ...
+2   0.3416     guide_walking.md                 # Walking in the region  ## Moderate, with hills  Th...
+3   0.3480     guide_corry_vale.md              # Corry Vale  ## Getting around  Nothing within the ...
+4   0.3726     guide_corry_vale.md              # Corry Vale  ## What to see  The valley itself is t...
+5   0.3834     guide_corry_vale.md              # Corry Vale  ## Eat and drink  One pub in the large...
+
+Gate: best distance 0.262 is under the 0.45 cutoff
+```
+
+```
+Question: What is worth seeing in Corry Vale?
+
+#   distance   source                           preview
+----------------------------------------------------------------------------------------------------
+1   0.4128     guide_corry_vale.md              # Corry Vale  ## Where to stay  Perhaps thirty beds ...
+2   0.4220     guide_walking.md                 # Walking in the region  ## Moderate, with hills  Th...
+3   0.4515     guide_corry_vale.md              # Corry Vale  ## When to go  May to September. Outsi...
+4   0.4645     guide_corry_vale.md              # Corry Vale  ## Getting around  Nothing within the ...
+5   0.4744     guide_corry_vale.md              # Corry Vale  ## What to see  The valley itself is t...
+
+Gate: best distance 0.413 is under the 0.45 cutoff
+```
+
+#### Q4: 
+
+Original: *What transportation option is recommended for getting around Marchwood?*
+
+Paraphrase: *What is the best way to get around Marchwood?*
+
+**Function**: `python app.py retrieve "What transportation option is recommended for getting around Marchwood?"`
+
+`python app.py retrieve "What is the best way to get around Marchwood?"`
+
+**Output**:
+```
+Question: What transportation option is recommended for getting around Marchwood?
+
+#   distance   source                           preview
+----------------------------------------------------------------------------------------------------
+1   0.3638     guide_marchwood.md               # Marchwood  ## Where to stay  Plentiful and, outsid...
+2   0.3836     guide_accessibility.md           # Getting around the region with limited mobility  #...
+3   0.4141     guide_marchwood.md               # Marchwood  ## Getting around  A tram network of fo...
+4   0.4370     guide_marchwood.md               # Marchwood  ## Eat and drink  The best eating is in...
+5   0.4500     guide_marchwood.md               # Marchwood  ## When to go  Any time. This is the on...
+
+Gate: best distance 0.364 is under the 0.45 cutoff
+```
+```
+Question: What is the best way to get around Marchwood?
+
+#   distance   source                           preview
+----------------------------------------------------------------------------------------------------
+1   0.3418     guide_marchwood.md               # Marchwood  ## Where to stay  Plentiful and, outsid...
+2   0.3483     guide_accessibility.md           # Getting around the region with limited mobility  #...
+3   0.3827     guide_marchwood.md               # Marchwood  ## Eat and drink  The best eating is in...
+4   0.4132     guide_marchwood.md               # Marchwood  ## Getting around  A tram network of fo...
+5   0.4197     guide_marchwood.md               # Marchwood  ## When to go  Any time. This is the on...
+
+Gate: best distance 0.342 is under the 0.45 cutoff
+```
+
+Q5: 
+
+Original: *In what area is cash still useful?*
+
+Paraphrase: *Where is it still useful to carry cash?*
+
+**Function**: `python app.py retrieve "In what area is cash still useful?"`
+
+`python app.py retrieve "Where is it still useful to carry cash?"`
+
+**Output**:
+```
+Question: In what area is cash still useful?
+
+#   distance   source                           preview
+----------------------------------------------------------------------------------------------------
+1   0.3752     guide_corry_vale.md              # Corry Vale  ## Practical notes  Cash is still usef...
+2   0.3841     guide_kestrelford.md             # Kestrelford  ## Practical notes  Cash is still use...
+3   0.3886     guide_marchwood.md               # Marchwood  ## Practical notes  Cash is still usefu...
+4   0.3919     guide_givens_mill.md             # Givens Mill  ## Practical notes  Cash is still use...
+5   0.3951     guide_halden_bay.md              # Halden Bay  ## Practical notes  Cash is still usef...
+
+Gate: best distance 0.375 is under the 0.45 cutoff
+```
+
+```
+Question: Where is it still useful to carry cash?
+
+#   distance   source                           preview
+----------------------------------------------------------------------------------------------------
+1   0.4315     guide_corry_vale.md              # Corry Vale  ## Practical notes  Cash is still usef...
+2   0.4403     guide_kestrelford.md             # Kestrelford  ## Practical notes  Cash is still use...
+3   0.4424     guide_marchwood.md               # Marchwood  ## Practical notes  Cash is still usefu...
+4   0.4480     guide_pellew_sands.md            # Pellew Sands  ## Practical notes  Cash is still us...
+5   0.4493     guide_halden_bay.md              # Halden Bay  ## Practical notes  Cash is still usef...
+
+Gate: best distance 0.432 is under the 0.45 cutoff
+```
+
 
 <!-- Underneath, paste the REAL output for each criterion from one of your
      runs — the actual text your system produced, not a description of it.
@@ -279,11 +576,11 @@ I gave Claude the best retrieval distances for my five in-corpus and five out-of
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
-| 1 |  |  |  |
-| 2 |  |  |  |
-| 3 |  |  |  |
-| 4 |  |  |  |
-| 5 |  |  |  |
+| 1 | Retrieved chunks contain the answer | MET | All 5 of 5 test questions retrieved at least one chunk containing the answer, exceeding the target of 4 out of 5. |
+| 2 | Every answer names a source | MET | All five generated answers named at least one source document in all three runs, meeting the 5-of-5 target each time. |
+| 3 | The relevance gate stops out-of-corpus questions | MET | The relevance gate refused all 5 out-of-scope questions, exceeding the target of 4 out of 5. Because the gate is deterministic, this result is the same across all three run columns. |
+| 4 | Sampled chunks contain enough context to be understood on their own | MET | All 5 sampled chunks included the document-level heading, section heading, and enough section content to understand them without reading neighboring chunks, meeting the 4-of-5 target. |
+| 5 | Paraphrased question pairs retrieve the same key source material | MET | All 5 paraphrased pairs still retrieved the key material needed for the same question. Some rankings changed, especially for Corry Vale, but the relevant answer-bearing source material still appeared in both retrieval results. |
 
 ## Diagnoses
 
