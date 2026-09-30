@@ -602,6 +602,12 @@ Gate: best distance 0.432 is under the 0.45 cutoff
 
      Milestone 3. -->
 
+I did not miss any of my five acceptance criteria. Looking back, though, I think some of my targets were a little safe, especially Criterion 5.
+
+For Criterion 5, I only required 4 out of 5 paraphrased question pairs to retrieve the same key source material, but all 5 ended up doing that. If I made the criterion stricter, I would change it to 5 out of 5.
+
+Even though all of the pairs passed, I noticed that paraphrasing could still change the ranking of the retrieved chunks. For example, for the Corry Vale question, the useful What to see chunk was still retrieved for the paraphrased version, but it appeared lower in the results. Because of that, I think requiring all 5 pairs to still retrieve the same key material would be a better test of how consistent the retrieval is when the wording changes.
+
 ## The Improvement
 
 **What I changed:**
